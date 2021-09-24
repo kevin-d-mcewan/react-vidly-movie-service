@@ -18,6 +18,16 @@ class Movies extends Component {
     this.setState({ movies: movies });
   };
 
+  /* 'handleLike' is only for updating the UI. Eventually we will call a function on the backend. */
+  handleLike = (movie) => {
+    // console.log("liked clicked", movie);
+    const movies = [...this.state.movies];
+    const index = movies.indexOf(movie);
+    movies[index] = { ...movies[index] };
+    movies[index].liked = !movies[index].liked;
+    this.setState({ movies });
+  };
+
   render() {
     // We will be peaking the length property making it equal to 'this.state.movies.length'
     const { length: moviesCount } = this.state.movies;
@@ -53,7 +63,10 @@ class Movies extends Component {
                 <td>{movie.numberInStock}</td>
                 <td>{movie.dailyRentalRate}</td>
                 <td>
-                  <Like liked={movie.liked} />
+                  <Like
+                    liked={movie.liked}
+                    onClick={() => this.handleLike(movie)}
+                  />
                 </td>
                 <td>
                   {/* Handle the on click event for deleting a movie */}
