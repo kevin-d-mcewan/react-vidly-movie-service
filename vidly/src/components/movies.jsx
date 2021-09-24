@@ -2,10 +2,12 @@ import React, { Component } from "react";
 import { getMovies } from "../services/fakeMovieService";
 import Pagination from "./common/pagination";
 import Like from "./common/like";
+import { paginate } from "../utils/paginate";
 
 class Movies extends Component {
   state = {
     movies: getMovies(),
+    currentPage: 1,
     pageSize: 4,
   };
 
@@ -31,16 +33,17 @@ class Movies extends Component {
   };
 
   handlePageChange = (page) => {
-    console.log("====================================");
-    console.log(page);
-    console.log("====================================");
+    this.setState({ currentPage: page });
   };
 
   render() {
     // We will be peaking the length property making it equal to 'this.state.movies.length'
     const { length: moviesCount } = this.state.movies;
+    const { pageSize, currentPage, movies: allMovies } = this.state;
 
     if (moviesCount === 0) return <p>There are no movies in the database</p>;
+
+    const movies = paginate(allMovies, currentPage, pageSize);
 
     return (
       <React.Fragment>
@@ -64,7 +67,7 @@ class Movies extends Component {
 
             {/* we are doing <tr key={movie._id} to give each child element a unique id. the underscore is the
             unique id for each child element*/}
-            {this.state.movies.map((movie) => (
+            {movies.map((movie) => (
               <tr key={movie._id}>
                 <td>{movie.title}</td>
                 <td>{movie.genre.main}</td>
@@ -91,7 +94,8 @@ class Movies extends Component {
         </table>
         <Pagination
           itemsCount={moviesCount}
-          pageSize={this.state.pageSize}
+          pageSize={pageSize}
+          currentPage={currentPage}
           onPageChange={this.handlePageChange}
         />
       </React.Fragment>
