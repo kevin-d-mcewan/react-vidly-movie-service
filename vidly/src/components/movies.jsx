@@ -49,14 +49,37 @@ class Movies extends Component {
     this.setState({ selectedGenres: genres });
   };
 
+  /**
+  |--------------------------------------------------
+  |  RENDER
+  |--------------------------------------------------
+  */
+
   render() {
     // We will be peaking the length property making it equal to 'this.state.movies.length'
     const { length: moviesCount } = this.state.movies;
-    const { pageSize, currentPage, movies: allMovies } = this.state;
+    const {
+      pageSize,
+      currentPage,
+      selectedGenres,
+      movies: allMovies,
+    } = this.state;
 
     if (moviesCount === 0) return <p>There are no movies in the database</p>;
 
-    const movies = paginate(allMovies, currentPage, pageSize);
+    /**
+    |--------------------------------------------------
+    |  'filtered' is taking the selected genre from an event if that is true it will filter all the movies. It will take each movie 'm'
+    /   get its genre _id and see if it is equal to the selected genres _id from the event. It will return 'false' if no genre is selected
+    /   and it will display all the movies.
+    |--------------------------------------------------
+    */
+
+    const filtered = selectedGenres
+      ? allMovies.filter((m) => m.genre._id === selectedGenres._id)
+      : allMovies;
+
+    const movies = paginate(filtered, currentPage, pageSize);
 
     return (
       <div className="row">
@@ -68,7 +91,7 @@ class Movies extends Component {
           />
         </div>
         <div className="col">
-          <p>Showing {moviesCount} movies in the database</p>
+          <p>Showing {filtered.length} movies in the database</p>
           <table className="table">
             <thead>
               <tr>
@@ -112,7 +135,7 @@ class Movies extends Component {
             </tbody>
           </table>
           <Pagination
-            itemsCount={moviesCount}
+            itemsCount={filtered.length}
             pageSize={pageSize}
             currentPage={currentPage}
             onPageChange={this.handlePageChange}
