@@ -17,7 +17,9 @@ class Movies extends Component {
   };
 
   componentDidMount() {
-    this.setState({ movies: getMovies(), genres: getGenres() });
+    const genres = [{ name: "All Genres" }, ...getGenres()];
+
+    this.setState({ movies: getMovies(), genres });
   }
 
   // in filter arrow function we are getting all the movies except the one we are
@@ -46,7 +48,7 @@ class Movies extends Component {
   };
 
   handleGenresSelect = (genres) => {
-    this.setState({ selectedGenres: genres });
+    this.setState({ selectedGenres: genres, currentPage: 1 });
   };
 
   /**
@@ -75,9 +77,10 @@ class Movies extends Component {
     |--------------------------------------------------
     */
 
-    const filtered = selectedGenres
-      ? allMovies.filter((m) => m.genre._id === selectedGenres._id)
-      : allMovies;
+    const filtered =
+      selectedGenres && selectedGenres._id
+        ? allMovies.filter((m) => m.genre._id === selectedGenres._id)
+        : allMovies;
 
     const movies = paginate(filtered, currentPage, pageSize);
 
