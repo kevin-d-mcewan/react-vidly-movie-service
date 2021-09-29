@@ -57,14 +57,7 @@ class Movies extends Component {
    otherwise it needs to be changed to "asc" 
    ELSE: if sortColumn is not equal to the path we will set it equal to the path and it will automatically be set to "asc" to start*/
 
-  handleSort = (path) => {
-    const sortColumn = { ...this.state.sortColumn };
-    if (sortColumn.path === path)
-      sortColumn.order = sortColumn.order === "asc" ? "desc" : "asc";
-    else {
-      sortColumn.path = path;
-      sortColumn.order = "asc";
-    }
+  handleSort = (sortColumn) => {
     this.setState({ sortColumn });
   };
 
@@ -102,7 +95,7 @@ class Movies extends Component {
 
     const sorted = _.orderBy(filtered, [sortColumn.path], [sortColumn.order]);
 
-    const movies = paginate(sorted, filtered, currentPage, pageSize);
+    const movies = paginate(sorted, currentPage, pageSize);
 
     return (
       <div className="row">
@@ -117,6 +110,7 @@ class Movies extends Component {
           <p>Showing {filtered.length} movies in the database</p>
           <MoviesTable
             movies={movies}
+            sortColumn={sortColumn}
             onSort={this.handleSort}
             onLike={this.handleLike}
             onDelete={this.handleDelete}
