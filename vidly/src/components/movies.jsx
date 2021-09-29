@@ -4,7 +4,8 @@ import Pagination from "./common/pagination";
 import MoviesTable from "./common/moviesTable";
 import { paginate } from "../utils/paginate";
 import ListGroup from "./common/listGroup";
-import { getGenres, genres } from "../services/fakeGenreService";
+import { getGenres } from "../services/fakeGenreService";
+import _ from "lodash";
 
 class Movies extends Component {
   state = {
@@ -14,10 +15,11 @@ class Movies extends Component {
     genres: [],
     currentPage: 1,
     pageSize: 4,
+    sortColumn: { path: "title", order: "asc" },
   };
 
   componentDidMount() {
-    const genres = [{ name: "All Genres" }, ...getGenres()];
+    const genres = [{ _id: "", name: "All Genres" }, ...getGenres()];
 
     this.setState({ movies: getMovies(), genres });
   }
@@ -51,6 +53,21 @@ class Movies extends Component {
     this.setState({ selectedGenres: genres, currentPage: 1 });
   };
 
+  /* In this we are going to clone sortColumn array, if the sortColumn is = to asc then we need to change it to "desc"
+   otherwise it needs to be changed to "asc" 
+   ELSE: if sortColumn is not equal to the path we will set it equal to the path and it will automatically be set to "asc" to start*/
+
+  handleSort = (path) => {
+    const sortColumn = { ...this.state.sortColumn };
+    if (sortColumn.path === path)
+      sortColumn.order = sortColumn.order === "asc" ? "desc" : "asc";
+    else {
+      sortColumn.path = path;
+      sortColumn.order = "asc";
+    }
+    this.setState({ sortColumn });
+  };
+
   /**
   |--------------------------------------------------
   |  RENDER
@@ -63,6 +80,7 @@ class Movies extends Component {
     const {
       pageSize,
       currentPage,
+      sortColumn,
       selectedGenres,
       movies: allMovies,
     } = this.state;
@@ -82,7 +100,9 @@ class Movies extends Component {
         ? allMovies.filter((m) => m.genre._id === selectedGenres._id)
         : allMovies;
 
-    const movies = paginate(filtered, currentPage, pageSize);
+    const sorted = _.orderBy(filtered, [sortColumn.path], [sortColumn.order]);
+
+    const movies = paginate(sorted, filtered, currentPage, pageSize);
 
     return (
       <div className="row">
@@ -97,6 +117,7 @@ class Movies extends Component {
           <p>Showing {filtered.length} movies in the database</p>
           <MoviesTable
             movies={movies}
+            onSort={this.handleSort}
             onLike={this.handleLike}
             onDelete={this.handleDelete}
           />
