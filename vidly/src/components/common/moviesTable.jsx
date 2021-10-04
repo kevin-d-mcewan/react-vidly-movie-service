@@ -1,6 +1,6 @@
 import React, { Component } from "react";
-import TableHeader from "./common/tableHeader";
-import TableBody from "./common/tableBody";
+import TableBody from "./tableBody";
+import TableHeader from "./tableHeader";
 import Like from "./like";
 
 class MoviesTable extends Component {
@@ -9,12 +9,27 @@ class MoviesTable extends Component {
     { path: "genre.name", label: "Genre" },
     { path: "numberInStock", label: "Stock" },
     { path: "dailyRentalRate", label: "Rate" },
-    { key: "like" },
-    { key: "delete" },
+    {
+      key: "like",
+      content: (movie) => (
+        <Like liked={movie.liked} onClick={() => this.props.onLike(movie)} />
+      ),
+    },
+    {
+      key: "delete",
+      content: (movie) => (
+        <button
+          onClick={() => this.props.onDelete(movie)}
+          className="bt btn-danger btn-sm"
+        >
+          Delete
+        </button>
+      ),
+    },
   ];
 
   render() {
-    const { movies, onDelete, onLike, onSort, sortColumn } = this.props;
+    const { movies, onSort, sortColumn } = this.props;
 
     return (
       <table className="table">
@@ -25,34 +40,7 @@ class MoviesTable extends Component {
         />
         {/* "data" is the information we are passing into 'TableData'. We are doing this way bc then we can reuse the,
           TableBody Component again and just change the DataType from "movies" to whatever we need. */}
-        <TableBody data={movies} />
-        <tbody>
-          {/* We will be taking each movie object an mapping to a <tr> element */}
-          {/* These movie objects will be coming from 'getMovies' from the "fakeMovieService.js" file */}
-
-          {/* we are doing <tr key={movie._id} to give each child element a unique id. the underscore is the
-            unique id for each child element*/}
-          {movies.map((movie) => (
-            <tr key={movie._id}>
-              <td>{movie.title}</td>
-              <td>{movie.genre.main}</td>
-              <td>{movie.numberInStock}</td>
-              <td>{movie.dailyRentalRate}</td>
-              <td>
-                <Like liked={movie.liked} onClick={() => onLike(movie)} />
-              </td>
-              <td>
-                {/* Handle the on click event for deleting a movie */}
-                <button
-                  onClick={() => onDelete(movie)}
-                  className="bt btn-danger btn-sm"
-                >
-                  Delete
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
+        <TableBody columns={this.columns} data={movies} />
       </table>
     );
   }
